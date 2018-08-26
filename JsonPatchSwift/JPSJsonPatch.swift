@@ -44,17 +44,16 @@ public struct JPSJsonPatch {
     */
     public init(_ patch: JSON) throws {
         // Check if there is an array of a dictionary as root element. Both are valid JSON patch documents.
-        if patch.type == .Dictionary {
-            self.operations = [try JPSJsonPatch.extractOperationFromJson(patch)]
-            
-        } else if patch.type == .Array {
+        if patch.type == Type.dictionary {
+            self.operations = [try JPSJsonPatch.extractOperationFromJson(json: patch)]
+        } else if patch.type == Type.array {
             guard 0 < patch.count else {
                 throw JPSJsonPatchInitialisationError.InvalidPatchFormat(message: JPSConstants.JsonPatch.InitialisationErrorMessages.PatchWithEmptyError)
             }
             var operationArray = [JPSOperation]()
             for i in 0..<patch.count {
                 let operation = patch[i]
-                operationArray.append(try JPSJsonPatch.extractOperationFromJson(operation))
+                operationArray.append(try JPSJsonPatch.extractOperationFromJson(json: operation))
             }
             self.operations = operationArray
             
@@ -79,20 +78,21 @@ public struct JPSJsonPatch {
      */
     public init(_ patch: String) throws {
         // Convert the String to NSData
-        let data = patch.dataUsingEncoding(NSUTF8StringEncoding)!
+        let data = patch.data(using: String.Encoding.utf8)!
         
         // Parse the JSON
-        var jsonError: NSError?
-        let json = JSON(data: data, options: .AllowFragments, error: &jsonError)
-        if let actualError = jsonError {
-            throw JPSJsonPatchInitialisationError.InvalidJsonFormat(message: actualError.description)
+        var json: JSON!
+        do {
+            json = try JSON(data: data, options: JSONSerialization.ReadingOptions.allowFragments)
+        } catch let error as NSError {
+            throw JPSJsonPatchInitialisationError.InvalidJsonFormat(message: error.description)
         }
-
+       
         try self.init(json)
     }
 
     /// Possible errors thrown by the init function.
-    public enum JPSJsonPatchInitialisationError: ErrorType {
+    public enum JPSJsonPatchInitialisationError: Error {
         /** InvalidJsonFormat: The given String is not a valid JSON. */
         case InvalidJsonFormat(message: String?)
         /** InvalidPatchFormat: The given Patch is invalid (e.g. missing mandatory parameters). See error message for details. */
