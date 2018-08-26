@@ -45,19 +45,18 @@ class JPSAddOperationTests: XCTestCase {
     }
     
     func testIfPathToNonExistingMemberCreatesNewMember2() {
-        let json = try! JSON(data: " { \"foo\" : \" { \"foo2\" : \"bar\" } \" } ".data(using: String.Encoding.utf8)!)
+        let json = try! JSON(data: " { \"foo\" : { \"foo2\" : \"bar\" } } ".data(using: String.Encoding.utf8)!)
         let jsonPatch = try! JPSJsonPatch("{ \"op\": \"add\", \"path\": \"/foo/bar\", \"value\": \"foo\" }")
         let resultingJson = try! JPSJsonPatcher.applyPatch(jsonPatch: jsonPatch, toJson: json)
-        let expectedJson = try! JSON(data: " { \"foo\" : \" { \"foo2\" : \"bar\", \"bar\" : \"foo\" } \" } ".data(using: String.Encoding.utf8)!)
+        let expectedJson = try! JSON(data: " { \"foo\" : { \"foo2\" : \"bar\", \"bar\" : \"foo\" } } ".data(using: String.Encoding.utf8)!)
         XCTAssertEqual(resultingJson, expectedJson)
     }
     
-    // failure
     func testIfPathToNonExistingMemberCreatesNewMember3() {
-        let json = try! JSON(data: " { \"foo\" : \" [ { \"foo\" : \"bar\" }, { \"blaa\" : \" { \" blubb \" : \"bloobb\" } \" } ] \" } ".data(using: String.Encoding.utf8)!)
+        let json = try! JSON(data: " { \"foo\" : [ { \"foo\" : \"bar\" }, { \"blaa\" : { \" blubb \" : \"bloobb\" }  } ] } ".data(using: String.Encoding.utf8)!)
         let jsonPatch = try! JPSJsonPatch("{ \"op\": \"add\", \"path\": \"/foo/1/blaa/blubby\", \"value\": \"foo\" }")
         let resultingJson = try! JPSJsonPatcher.applyPatch(jsonPatch: jsonPatch, toJson: json)
-        let expectedJson = try! JSON(data: " { \"foo\" : \" [ { \"foo\" : \"bar\" }, { \"blaa\" : \" { \" blubb \" : \"bloobb\", \"blubby\" : \"foo\" } \" } ] \" } ".data(using: String.Encoding.utf8)!)
+        let expectedJson = try! JSON(data: " { \"foo\" : [ { \"foo\" : \"bar\" }, { \"blaa\" : { \" blubb \" : \"bloobb\", \"blubby\" : \"foo\" } } ] } ".data(using: String.Encoding.utf8)!)
         XCTAssertEqual(resultingJson, expectedJson)
     }
     
@@ -70,10 +69,10 @@ class JPSAddOperationTests: XCTestCase {
     }
     
     func testIfPathToExistingMemberReplacesIt2() {
-        let json = try! JSON(data: " { \"foo\" : \" [ { \"foo\" : \"bar\" }, { \"blaa\" : \" { \" blubb \" : \"bloobb\" } \" } ] \" } ".data(using: String.Encoding.utf8)!)
+        let json = try! JSON(data: " { \"foo\" : [ { \"foo\" : \"bar\" }, { \"blaa\" : { \" blubb \" : \"bloobb\" } } ] } ".data(using: String.Encoding.utf8)!)
         let jsonPatch = try! JPSJsonPatch("{ \"op\": \"add\", \"path\": \"/foo/1/blaa/ blubb \", \"value\": \"foo\" }")
         let resultingJson = try! JPSJsonPatcher.applyPatch(jsonPatch: jsonPatch, toJson: json)
-        let expectedJson = try! JSON(data: " { \"foo\" : \" [ { \"foo\" : \"bar\" }, { \"blaa\" : \" { \" blubb \" : \"foo\" } \" } ] \" } ".data(using: String.Encoding.utf8)!)
+        let expectedJson = try! JSON(data: " { \"foo\" : [ { \"foo\" : \"bar\" }, { \"blaa\" : { \" blubb \" : \"foo\" } } ] } ".data(using: String.Encoding.utf8)!)
         XCTAssertEqual(resultingJson, expectedJson)
     }
 
@@ -106,10 +105,10 @@ class JPSAddOperationTests: XCTestCase {
     }
     
     func testIfMinusAtEndOfPathAppendsToArray() {
-        let json = try! JSON(data: " { \"foo\" : [ bar1, bar2, bar3 ] } ".data(using: String.Encoding.utf8)!)
+        let json = try! JSON(data: " { \"foo\" : [ \"bar1\", \"bar2\", \"bar3\" ] } ".data(using: String.Encoding.utf8)!)
         let jsonPatch = try! JPSJsonPatch("{ \"op\": \"add\", \"path\": \"/foo/-\", \"value\": \"bar4\" }")
         let resultingJson = try! JPSJsonPatcher.applyPatch(jsonPatch: jsonPatch, toJson: json)
-        let expectedJson = try! JSON(data: " { \"foo\" : [ bar1, bar2, bar3, bar4 ] } ".data(using: String.Encoding.utf8)!)
+        let expectedJson = try! JSON(data: " { \"foo\" : [ \"bar1\", \"bar2\", \"bar3\", \"bar4\" ] } ".data(using: String.Encoding.utf8)!)
         XCTAssertEqual(resultingJson, expectedJson)
     }
     

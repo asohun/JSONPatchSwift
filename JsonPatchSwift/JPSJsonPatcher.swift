@@ -173,7 +173,14 @@ extension JPSJsonPatcher {
             throw JPSJsonPatcherApplyError.InvalidJson
         }
         if pointer.pointerValue.count == 1 {
-            return try operation(newJson, pointer)
+            let pointerVal = pointer.pointerValue.first as? String
+            if (pointerVal == "-") {
+                let lastIndex = (json?.array?.count)!
+                let newPointer = try JPSJsonPointer(rawValue: "/" + "\(lastIndex)")
+                return try operation(newJson, newPointer)
+            } else {
+                return try operation(newJson, pointer)
+            }
         } else {
             if var arr = newJson.array, let indexString = pointer.pointerValue.first as? String, let index = Int(indexString) {
                 arr[index] = try applyOperation(json: arr[index], pointer: JPSJsonPointer.traverse(pointer: pointer), operation: operation)
