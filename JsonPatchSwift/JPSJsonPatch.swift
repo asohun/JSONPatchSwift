@@ -130,9 +130,9 @@ extension JPSJsonPatch {
         // 'value' element mandatory for .Add, .Replace operations
         let value = json[JPSConstants.JsonPatch.Parameter.Value]
         // counterintuitive null check: https://github.com/SwiftyJSON/SwiftyJSON/issues/205
-        if (operationType == .Add || operationType == .Replace) && value.null != nil {
-            throw JPSJsonPatchInitialisationError.InvalidPatchFormat(message: JPSConstants.JsonPatch.InitialisationErrorMessages.ValueElementNotFound)
-        }
+//        if ((operationType == .Add || operationType == .Replace)) && value.null != nil {
+//            throw JPSJsonPatchInitialisationError.InvalidPatchFormat(message: JPSConstants.JsonPatch.InitialisationErrorMessages.ValueElementNotFound)
+//        }
 
         let pointer = try JPSJsonPointer(rawValue: path)
         return JPSOperation(type: operationType, pointer: pointer, value: value, from: from)
